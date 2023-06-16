@@ -1,18 +1,16 @@
 import * as bcrypt from 'bcrypt';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import configuration from 'src/configuration/configuration';
 
 @Injectable()
 export class HashService {
-  constructor(private readonly configService: ConfigService) {}
+  constructor(private configService: ConfigService) {}
 
-  async generate(pass: string): Promise<string> {
-    const salt = configuration().hash.salt;
-    return await bcrypt.hash(pass, salt);
+  async generate(pass: string) {
+    return await bcrypt.hash(pass, this.configService.get('saltRound'));
   }
 
-  async verify(pass: string, hash: string): Promise<boolean> {
+  async verify(pass: string, hash: string) {
     return await bcrypt.compare(pass, hash);
   }
 }

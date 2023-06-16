@@ -1,23 +1,24 @@
-//import * as path from 'path';
-//import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
+import * as path from 'path';
+import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 
 export default () => ({
-  server: {
-    port: process.env.SERVER_PORT || 3001,
-  },
+  port: parseInt(process.env.PORT, 10) || 3001,
+
   database: {
-    host: process.env.DATABASE_HOST,
-    port: process.env.DATABASE_PORT || 5432,
+    type: process.env.DATABASE_TYPE || 'postgres',
+    host: process.env.DATABASE_HOST || 'localhost',
+    port: parseInt(process.env.DATABASE_PORT, 10) || 5432,
     username: process.env.DATABASE_USERNAME || 'student',
     password: process.env.DATABASE_PASSWORD || 'student',
-    name: process.env.DATABASE_NAME || 'kupipodariday',
+    database: process.env.DATABASE_NAME || 'kupipodariday',
+    entities: [path.resolve(`${__dirname}/../../**/*.entity{.ts,.js}`)],
+    migrations: [
+      path.resolve(`${__dirname}/../../src/db/migrations/*{.ts,.js}`),
+    ],
+    synchronize: true,
     schema: process.env.DATABASE_SCHEMA || 'kupipodariday',
-  },
-  jwt: {
-    secretKey: process.env.JWT_SECRET || 'secret-key',
-    ttl: process.env.JWT_TTL || '7d',
-  },
-  hash: {
-    salt: Number(process.env.SALT) || 10,
-  },
+  } as PostgresConnectionOptions,
+
+  saltRound: parseInt(process.env.SALT, 10) || 10,
+  secretKey: process.env.JWT_SECRET || 'secret-key',
 });

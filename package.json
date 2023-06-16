@@ -41,7 +41,6 @@
     "cookie-parser": "^1.4.6",
     "db-migrate": "^0.11.13",
     "express-session": "^1.17.3",
-    "jwt-authorized": "^0.21.4",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
