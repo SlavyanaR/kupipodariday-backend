@@ -5,7 +5,7 @@ import { UsersModule } from './users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 //import { User } from './users/entities/user.entity';
 import { WishesModule } from './wishes/wishes.module';
-import { WishlistlistsModule } from './wishlistlists/wishlistlists.module';
+import { WishlistsModule } from './wishlistlists/wishlist.module';
 import { OffersModule } from './offers/offers.module';
 import { AuthModule } from './auth/auth.module';
 import { HashModule } from './hash/hash.module';
@@ -23,7 +23,7 @@ import { AppController } from './app.controller';
     }),
     UsersModule,
     WishesModule,
-    WishlistlistsModule,
+    WishlistsModule,
     OffersModule,
     AuthModule,
     HashModule,
