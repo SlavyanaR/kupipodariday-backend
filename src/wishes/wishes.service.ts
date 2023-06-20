@@ -86,6 +86,10 @@ export class WishesService {
     return this.wishesRepository.update({ id }, updateWishDto);
   }
 
+  async updateRaised(id: number, raised: number): Promise<UpdateResult> {
+    return this.wishesRepository.update({ id }, { raised });
+  }
+
   async remove(id: number, userId: number): Promise<DeleteResult> {
     const wish = await this.findOne(id);
     if (userId !== wish.owner.id) {
@@ -100,6 +104,9 @@ export class WishesService {
     if (!wish) {
       throw new NotFoundException('Подарок не найден');
     }
+
+    await this.checkDuplicate(wish, user);
+
     const { name, link, image, price, description } = wish;
 
     const copiedWish = await this.wishesRepository.create({
@@ -117,5 +124,25 @@ export class WishesService {
     ]);
 
     return copiedWish;
+  }
+
+  async checkDuplicate(createWishDto: CreateWishDto, user: User) {
+    const { name, link, price } = createWishDto;
+
+    const wish = await this.wishesRepository.findOne({
+      where: {
+        name,
+        link,
+        price,
+        owner: { id: user.id },
+      },
+      relations: { owner: true },
+    });
+
+    if (wish) {
+      throw new ForbiddenException('В вашем вишлисте уже есть этот подарок');
+    }
+
+    return;
   }
 }

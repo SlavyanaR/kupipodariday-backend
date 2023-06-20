@@ -11,6 +11,9 @@ import { OffersService } from './offers.service';
 import { CreateOfferDto } from './dto/create-offer.dto';
 import { JwtGuard } from 'src/auth/jwt.guard';
 import { RequestWithUser } from 'src/utils/request-with-user';
+import { User } from 'src/users/entities/user.entity';
+import { AuthUser } from 'src/utils/auth-user.decorator';
+import { Offer } from './entities/offer.entity';
 
 @UseGuards(JwtGuard)
 @Controller('offers')
@@ -18,17 +21,17 @@ export class OffersController {
   constructor(private readonly offersService: OffersService) {}
 
   @Post()
-  create(@Body() createOfferDto: CreateOfferDto, @Req() req: RequestWithUser) {
-    return this.offersService.create(createOfferDto, req.user.id);
+  async create(@Body() createOfferDto: CreateOfferDto, @AuthUser() user: User) {
+    return this.offersService.create(createOfferDto, user);
   }
 
   @Get()
-  getOffers() {
+  getOffers(): Promise<Offer[]> {
     return this.offersService.getOffers();
   }
 
   @Get(':id')
-  getById(@Param('id') id: string) {
-    return this.offersService.getById(+id);
+  getById(@Param('id') id: number): Promise<Offer> {
+    return this.offersService.getById(id);
   }
 }
