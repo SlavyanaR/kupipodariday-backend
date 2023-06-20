@@ -7,7 +7,6 @@ import {
   Param,
   UseGuards,
   SerializeOptions,
-  Req,
   ClassSerializerInterceptor,
   UseInterceptors,
 } from '@nestjs/common';
@@ -27,7 +26,7 @@ import { UserPublicProfileResponseDto } from './dto/user-public-profile-response
 @UseGuards(JwtGuard)
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) { }
+  constructor(private readonly usersService: UsersService) {}
 
   @Get('me')
   @SerializeOptions({ groups: [GROUP_USER] })
@@ -50,7 +49,9 @@ export class UsersController {
   }
 
   @Get(':username')
-  async getByUsername(@Param('username') username: string): Promise<UserPublicProfileResponseDto> {
+  async getByUsername(
+    @Param('username') username: string,
+  ): Promise<UserPublicProfileResponseDto> {
     return this.usersService.findOne(username);
   }
 

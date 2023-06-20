@@ -1,5 +1,10 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { FindManyOptions, FindOneOptions, Like, Repository } from 'typeorm';
 import { HashService } from '../hash/hash.service';
 import { User } from './entities/user.entity';
@@ -15,12 +20,10 @@ export class UsersService {
     @InjectRepository(Wish)
     private readonly wishRepository: Repository<Wish>,
     private hashService: HashService,
-  ) { }
+  ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
-    const password = await this.hashService.generate(
-      createUserDto.password,
-    );
+    const password = await this.hashService.generate(createUserDto.password);
 
     const newUser = await this.userRepository.create({
       ...createUserDto,
@@ -29,7 +32,9 @@ export class UsersService {
 
     return this.userRepository.save(newUser).catch((e) => {
       if (e.code == '23505') {
-        throw new BadRequestException('Пользователь с таким email или username уже зарегистрирован');
+        throw new BadRequestException(
+          'Пользователь с таким email или username уже зарегистрирован',
+        );
       }
 
       return e;
@@ -60,7 +65,9 @@ export class UsersService {
 
     await this.userRepository.update({ id }, updateUserDto).catch((e) => {
       if (e.code == '23505') {
-        throw new BadRequestException('Пользователь с таким email или username уже зарегистрирован');
+        throw new BadRequestException(
+          'Пользователь с таким email или username уже зарегистрирован',
+        );
       }
 
       return e;

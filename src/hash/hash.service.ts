@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class HashService {
-  constructor(private readonly configService: ConfigService) { }
+  constructor(private readonly configService: ConfigService) {}
 
   async generate(pass: string): Promise<string> {
     return await bcrypt.hash(pass, this.configService.get('saltRound'));

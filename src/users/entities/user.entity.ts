@@ -8,10 +8,9 @@ import { Column, Entity, OneToMany, Unique } from 'typeorm';
 import { GROUP_USER } from '../../utils/constants';
 
 @Entity()
-//@Unique(['username'])
-//@Unique(['email'])
 export class User extends Base {
   @Column({ unique: true, })
+  @IsString()
   @Length(2, 30)
   username: string;
 
