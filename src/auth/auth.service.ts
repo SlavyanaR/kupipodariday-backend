@@ -21,7 +21,7 @@ export class AuthService {
   }
 
   async validateUser(username: string, pass: string) {
-    const user = await this.userService.findOne({ where: { username } });
+    const user = await this.userService.findOne(username);
 
     if (user && user.password) {
       const isVerified = await this.hashService.verify(pass, user.password);

@@ -3,15 +3,15 @@ import { IsEmail, IsOptional, IsString, IsUrl, Length } from 'class-validator';
 import { Offer } from 'src/offers/entities/offer.entity';
 import { Base } from 'src/utils/base-entity';
 import { Wish } from 'src/wishes/entities/wish.entity';
-import { Wishlistlist } from 'src/wishlistlists/entities/wishlistlist.entity';
+import { Wishlist } from 'src/wishlistlists/entities/wishlist.entity';
 import { Column, Entity, OneToMany, Unique } from 'typeorm';
 import { GROUP_USER } from '../../utils/constants';
 
 @Entity()
-@Unique(['username'])
-@Unique(['email'])
+//@Unique(['username'])
+//@Unique(['email'])
 export class User extends Base {
-  @Column()
+  @Column({ unique: true, })
   @Length(2, 30)
   username: string;
 
@@ -26,12 +26,13 @@ export class User extends Base {
   @IsUrl()
   avatar: string;
 
-  @Column()
+  @Column({ unique: true, })
   @Expose({ groups: [GROUP_USER] })
   @IsEmail()
   email: string;
 
   @Column()
+  @IsString()
   @Exclude()
   password: string;
 
@@ -41,6 +42,6 @@ export class User extends Base {
   @OneToMany(() => Offer, (offer) => offer.user)
   offers: Offer[];
 
-  @OneToMany(() => Wishlistlist, (list) => list.owner)
-  wishlists: Wishlistlist[];
+  @OneToMany(() => Wishlist, (list) => list.owner)
+  wishlists: Wishlist[];
 }

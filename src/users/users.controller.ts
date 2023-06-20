@@ -8,52 +8,61 @@ import {
   UseGuards,
   SerializeOptions,
   Req,
+  ClassSerializerInterceptor,
+  UseInterceptors,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtGuard } from 'src/auth/jwt.guard';
 import { GROUP_USER } from 'src/utils/constants';
 import { RequestWithUser } from 'src/utils/request-with-user';
-import { FindUserDto } from './dto/find-user.dto';
+//import { FindUserDto } from './dto/find-user.dto';
+import { AuthUser } from 'src/utils/auth-user.decorator';
+import { User } from './entities/user.entity';
+import { UserProfileResponseDto } from './dto/user-profile-response.dto';
+import { Wish } from 'src/wishes/entities/wish.entity';
+import { UserPublicProfileResponseDto } from './dto/user-public-profile-response.dto';
 
+@UseInterceptors(ClassSerializerInterceptor)
 @UseGuards(JwtGuard)
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
   @Get('me')
   @SerializeOptions({ groups: [GROUP_USER] })
-  getUser(@Req() req: RequestWithUser) {
-    return req.user;
+  async getUser(@AuthUser() user: User): Promise<UserProfileResponseDto> {
+    return this.usersService.updateOne(user.id);
   }
 
   @Patch('me')
   @SerializeOptions({ groups: [GROUP_USER] })
-  updateUser(
+  async updateUser(
+    @AuthUser() user: User,
     @Body() updateUserDto: UpdateUserDto,
-    @Req() req: RequestWithUser,
-  ) {
-    return this.usersService.updateOne(req.user.id, updateUserDto);
+  ): Promise<User> {
+    return this.usersService.update(user.id, updateUserDto);
   }
 
   @Get('me/wishes')
-  getMyWishes(@Req() req: RequestWithUser) {
-    return this.usersService.getUserWishes(req.user.id);
+  async getMyWishes(@AuthUser() user: User): Promise<Wish[]> {
+    return this.usersService.getUserWishes(user.id);
   }
 
   @Get(':username')
-  getByUsername(@Param('username') username: string) {
-    return this.usersService.getByUsername(username);
+  async getByUsername(@Param('username') username: string): Promise<UserPublicProfileResponseDto> {
+    return this.usersService.findOne(username);
   }
 
   @Get(':username/wishes')
-  getUserWishes(@Param('username') username: string) {
-    return this.usersService.getAnotherUserWishes(username);
+  async getUserWishes(@Param('username') username: string): Promise<Wish[]> {
+    const user = await this.usersService.findOne(username);
+
+    return this.usersService.getUserWishes(user.id);
   }
 
   @Post('find')
-  findByUserNameOrEmail(@Body() findUserDto: FindUserDto) {
-    const { query } = findUserDto;
-    return this.usersService.findByUsernameOrEmail(query);
+  async findUsers(@Body('query') query: string): Promise<User[]> {
+    return this.usersService.findMany(query);
   }
 }
