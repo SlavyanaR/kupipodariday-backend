@@ -25,4 +25,5 @@ export class Offer extends Base {
 
   @ManyToOne(() => User, (user) => user.offers)
   user: User;
-}
+
+  }

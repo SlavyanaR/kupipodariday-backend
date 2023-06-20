@@ -1,78 +1,86 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateWishlistDto } from './dto/create-wishlist.dto';
-import { UpdateWishlistlistDto } from './dto/update-wishlist.dto';
+import { UpdateWishlistDto } from './dto/update-wishlist.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Wishlist } from './entities/wishlist.entity';
-import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
+import { DeleteResult, Repository, UpdateResult } from 'typeorm';
+import { User } from '../users/entities/user.entity';
+import { WishesService } from '../wishes/wishes.service';
 
 @Injectable()
-export class WishlistlistsService {
+export class WishlistsService {
   constructor(
     @InjectRepository(Wishlist)
-    private wishlistsRepository: Repository<Wishlist>,
+    private readonly wishlistsRepository: Repository<Wishlist>,
+    private readonly wishesService: WishesService,
   ) {}
 
-  create(createWishlistDto: CreateWishlistDto, ownerId: number) {
-    const { itemsId, ...rest } = createWishlistDto;
-    const items = itemsId.map((id) => ({ id }));
-    const wishList = this.wishlistsRepository.create({
-      ...rest,
+  async create(
+    createWishlistDto: CreateWishlistDto,
+    owner: User,
+  ): Promise<Wishlist> {
+    const items = await this.wishesService.findMany(createWishlistDto.itemsId);
+
+    if (!items.length) {
+      throw new NotFoundException('Ни одного подарка не найдено');
+    }
+
+    const newWishlist = await this.wishlistsRepository.create({
+      ...createWishlistDto,
       items,
-      owner: { id: ownerId },
+      owner,
     });
-    return this.wishlistsRepository.save(wishList);
+
+    return this.wishlistsRepository.save(newWishlist);
   }
 
-  findMany(query: FindManyOptions<Wishlist>) {
-    return this.wishlistsRepository.find(query);
-  }
-
-  findOne(query: FindOneOptions<Wishlist>) {
-    return this.wishlistsRepository.findOne(query);
-  }
-
-  getWishlists() {
-    return this.findMany({
-      relations: ['items', 'owner'],
+  async getWishlists(): Promise<Wishlist[]> {
+    return this.wishlistsRepository.find({
+      relations: {
+        owner: true,
+        items: true,
+      },
     });
   }
 
-  getById(id: number) {
-    return this.findOne({
-      where: { id },
-      relations: ['items', 'owner'],
+  async getById(id: number): Promise<Wishlist> {
+    const wishlist = await this.wishlistsRepository.findOne({
+      where: {
+        id,
+      },
+      relations: {
+        owner: true,
+        items: true,
+      },
     });
+
+    if (!wishlist) {
+      throw new NotFoundException('Коллекция не найдена');
+    }
+    return wishlist;
   }
 
   async update(
     id: number,
-    updateWishlistDto: UpdateWishlistlistDto,
+    updateWishlistDto: UpdateWishlistDto,
     userId: number,
-  ) {
-    const wishlist = await this.findOne({
-      where: { id },
-      relations: { owner: true },
-    });
+  ): Promise<UpdateResult> {
+    const wishlist = await this.getById(id);
 
     if (wishlist.owner.id !== userId) {
       throw new ForbiddenException(
         'Вы не можете редактировать чужие списки подарков',
       );
     }
-
-    const { itemsId, ...rest } = updateWishlistDto;
-    const items = itemsId.map((id) => ({ id }));
-    const updatedWishlist = { ...rest, items };
-
-    await this.wishlistsRepository.update(id, updatedWishlist);
-    return this.findOne({ where: { id } });
+    return this.wishlistsRepository.update(id, updateWishlistDto);
   }
 
-  async delete(id: number, userId: number) {
-    const wishlist = await this.findOne({
-      where: { id },
-      relations: { owner: true },
-    });
+  async delete(id: number, userId: number): Promise<DeleteResult> {
+    const wishlist = await this.getById(id);
 
     if (wishlist.owner.id !== userId) {
       throw new ForbiddenException(
@@ -80,7 +88,6 @@ export class WishlistlistsService {
       );
     }
 
-    await this.wishlistsRepository.delete(id);
-    return wishlist;
+    return this.wishlistsRepository.delete(id);
   }
 }

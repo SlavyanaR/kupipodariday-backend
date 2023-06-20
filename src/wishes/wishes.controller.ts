@@ -7,7 +7,6 @@ import {
   Param,
   Delete,
   UseGuards,
-  Req,
 } from '@nestjs/common';
 import { WishesService } from './wishes.service';
 import { CreateWishDto } from './dto/create-wish.dto';
@@ -20,7 +19,7 @@ import { DeleteResult, UpdateResult } from 'typeorm';
 
 @Controller('wishes')
 export class WishesController {
-  constructor(private readonly wishesService: WishesService) { }
+  constructor(private readonly wishesService: WishesService) {}
 
   @UseGuards(JwtGuard)
   @Post()
@@ -28,9 +27,8 @@ export class WishesController {
     @Body() createWishDto: CreateWishDto,
     @AuthUser() user: User,
   ): Promise<Wish> {
-    return this.wishesService.create(createWishDto, user);
+    return this.wishesService.create(createWishDto, user.id);
   }
-
 
   @Get('last')
   async getLastWishes(): Promise<Wish[]> {
@@ -60,17 +58,16 @@ export class WishesController {
 
   @UseGuards(JwtGuard)
   @Delete(':id')
-  async remove
-    (@Param('id') id: number,
-      @AuthUser() user: User): Promise<DeleteResult> {
+  async remove(
+    @Param('id') id: number,
+    @AuthUser() user: User,
+  ): Promise<DeleteResult> {
     return this.wishesService.remove(id, user.id);
   }
 
   @UseGuards(JwtGuard)
   @Post(':id/copy')
-  async copy(@Param('id') id: number,
-    @AuthUser() user: User,
-  ): Promise<Wish> {
+  async copy(@Param('id') id: number, @AuthUser() user: User): Promise<Wish> {
     return this.wishesService.copy(id, user);
   }
 }

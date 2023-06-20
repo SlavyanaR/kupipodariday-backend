@@ -9,7 +9,7 @@ import { GROUP_USER } from '../../utils/constants';
 
 @Entity()
 export class User extends Base {
-  @Column({ unique: true, })
+  @Column({ unique: true })
   @IsString()
   @Length(2, 30)
   username: string;
@@ -25,7 +25,7 @@ export class User extends Base {
   @IsUrl()
   avatar: string;
 
-  @Column({ unique: true, })
+  @Column({ unique: true })
   @Expose({ groups: [GROUP_USER] })
   @IsEmail()
   email: string;

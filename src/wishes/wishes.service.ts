@@ -7,7 +7,7 @@ import {
 import {
   DataSource,
   DeleteResult,
-  FindManyOptions,
+  In,
   Repository,
   UpdateResult,
 } from 'typeorm';
@@ -25,7 +25,7 @@ export class WishesService {
     @InjectRepository(Wish)
     private readonly wishesRepository: Repository<Wish>,
     private readonly dataSource: DataSource,
-  ) {}
+  ) { }
 
   create(createWishDto: CreateWishDto, ownerId: number) {
     const wish = this.wishesRepository.create({
@@ -35,9 +35,10 @@ export class WishesService {
     return this.wishesRepository.save(wish);
   }
 
-  findMany(query: FindManyOptions<Wish>) {
-    return this.wishesRepository.find(query);
+  async findMany(wishesIds: number[]): Promise<Wish[]> {
+    return this.wishesRepository.find({ where: { id: In(wishesIds) } });
   }
+
 
   async findOne(id: number): Promise<Wish> {
     const wish = await this.wishesRepository.findOne({

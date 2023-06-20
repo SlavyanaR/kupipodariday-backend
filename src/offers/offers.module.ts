@@ -9,5 +9,6 @@ import { WishesModule } from 'src/wishes/wishes.module';
   imports: [TypeOrmModule.forFeature([Offer]), WishesModule],
   controllers: [OffersController],
   providers: [OffersService],
+  exports: [OffersService],
 })
 export class OffersModule {}

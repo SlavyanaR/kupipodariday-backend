@@ -7,11 +7,11 @@ import {
   SerializeOptions,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { UsersService } from 'src/users/users.service';
+import { UsersService } from '../users/users.service';
 import { LocalAuthGuard } from './local-auth.guard';
-import { RequestWithUser } from 'src/utils/request-with-user';
-import { CreateUserDto } from 'src/users/dto/create-user.dto';
-import { GROUP_USER } from 'src/utils/constants';
+import { RequestWithUser } from '../utils/request-with-user';
+import { CreateUserDto } from '../users/dto/create-user.dto';
+import { GROUP_USER } from '../utils/constants';
 
 @Controller('auth')
 export class AuthController {
