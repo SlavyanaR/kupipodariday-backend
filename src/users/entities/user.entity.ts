@@ -1,10 +1,10 @@
 import { Exclude, Expose } from 'class-transformer';
 import { IsEmail, IsOptional, IsString, IsUrl, Length } from 'class-validator';
-import { Offer } from 'src/offers/entities/offer.entity';
-import { Base } from 'src/utils/base-entity';
-import { Wish } from 'src/wishes/entities/wish.entity';
-import { Wishlist } from 'src/wishlistlists/entities/wishlist.entity';
-import { Column, Entity, OneToMany, Unique } from 'typeorm';
+import { Offer } from '../../offers/entities/offer.entity';
+import { Base } from '../../utils/base-entity';
+import { Wish } from '../../wishes/entities/wish.entity';
+import { Wishlist } from '../../wishlistlists/entities/wishlist.entity';
+import { Column, Entity, OneToMany } from 'typeorm';
 import { GROUP_USER } from '../../utils/constants';
 
 @Entity()

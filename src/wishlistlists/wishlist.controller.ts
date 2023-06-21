@@ -7,7 +7,6 @@ import {
   Param,
   Delete,
   UseGuards,
-  Req,
 } from '@nestjs/common';
 import { WishlistsService } from './wishlist.service';
 import { CreateWishlistDto } from './dto/create-wishlist.dto';

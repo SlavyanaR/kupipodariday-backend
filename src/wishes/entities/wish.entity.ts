@@ -1,11 +1,11 @@
 import { IsNumber, IsPositive, IsUrl, Length } from 'class-validator';
 import { Column, Entity, OneToMany, ManyToOne, ManyToMany } from 'typeorm';
 
-import { Base } from 'src/utils/base-entity';
-import { ColumnTransformer } from 'src/utils/column-transformer';
-import { User } from 'src/users/entities/user.entity';
-import { Offer } from 'src/offers/entities/offer.entity';
-import { Wishlist } from 'src/wishlistlists/entities/wishlist.entity';
+import { Base } from '../../utils/base-entity';
+//import { ColumnTransformer } from 'src/utils/column-transformer';
+import { User } from '../../users/entities/user.entity';
+import { Offer } from '../../offers/entities/offer.entity';
+import { Wishlist } from '../../wishlistlists/entities/wishlist.entity';
 
 @Entity()
 export class Wish extends Base {

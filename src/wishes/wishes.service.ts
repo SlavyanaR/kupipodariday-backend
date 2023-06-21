@@ -1,23 +1,11 @@
-import {
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-
-import {
-  DataSource,
-  DeleteResult,
-  In,
-  Repository,
-  UpdateResult,
-} from 'typeorm';
-
+import { ForbiddenException, Injectable, NotFoundException, } from '@nestjs/common';
+import { DataSource, DeleteResult, In, Repository, UpdateResult, } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Wish } from './entities/wish.entity';
 import { CreateWishDto } from './dto/create-wish.dto';
 import { UpdateWishDto } from './dto/update-wish.dto';
-import { User } from 'src/users/entities/user.entity';
-import queryRunner from 'src/utils/queryRunner';
+import { User } from '../users/entities/user.entity';
+import queryRunner from '../utils/queryRunner';
 
 @Injectable()
 export class WishesService {
@@ -27,18 +15,20 @@ export class WishesService {
     private readonly dataSource: DataSource,
   ) { }
 
-  create(createWishDto: CreateWishDto, ownerId: number) {
-    const wish = this.wishesRepository.create({
+  async create(createWishDto: CreateWishDto, user: User): Promise<Wish> {
+    await this.checkDuplicate(createWishDto, user);
+
+    const newWish = await this.wishesRepository.create({
       ...createWishDto,
-      owner: { id: ownerId },
+      owner: user,
     });
-    return this.wishesRepository.save(wish);
+
+    return this.wishesRepository.save(newWish);
   }
 
   async findMany(wishesIds: number[]): Promise<Wish[]> {
     return this.wishesRepository.find({ where: { id: In(wishesIds) } });
   }
-
 
   async findOne(id: number): Promise<Wish> {
     const wish = await this.wishesRepository.findOne({
@@ -69,11 +59,7 @@ export class WishesService {
     });
   }
 
-  async update(
-    id: number,
-    userId: number,
-    updateWishDto: UpdateWishDto,
-  ): Promise<UpdateResult> {
+  async update(id: number, userId: number, updateWishDto: UpdateWishDto,): Promise<UpdateResult> {
     const wish = await this.findOne(id);
     if (userId !== wish.owner.id) {
       throw new ForbiddenException('Вы не можете редактировать чужие подарки');

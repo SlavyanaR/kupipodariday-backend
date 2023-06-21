@@ -1,16 +1,15 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   BadRequestException,
-  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { FindManyOptions, FindOneOptions, Like, Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { HashService } from '../hash/hash.service';
 import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { Wish } from 'src/wishes/entities/wish.entity';
+import { Wish } from '../wishes/entities/wish.entity';
 
 @Injectable()
 export class UsersService {

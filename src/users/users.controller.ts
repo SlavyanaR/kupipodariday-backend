@@ -12,14 +12,14 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { JwtGuard } from 'src/auth/jwt.guard';
-import { GROUP_USER } from 'src/utils/constants';
-import { RequestWithUser } from 'src/utils/request-with-user';
+import { JwtGuard } from '../auth/jwt.guard';
+import { GROUP_USER } from '../utils/constants';
+//import { RequestWithUser } from 'src/utils/request-with-user';
 //import { FindUserDto } from './dto/find-user.dto';
-import { AuthUser } from 'src/utils/auth-user.decorator';
+import { AuthUser } from '../utils/auth-user.decorator';
 import { User } from './entities/user.entity';
 import { UserProfileResponseDto } from './dto/user-profile-response.dto';
-import { Wish } from 'src/wishes/entities/wish.entity';
+import { Wish } from '../wishes/entities/wish.entity';
 import { UserPublicProfileResponseDto } from './dto/user-public-profile-response.dto';
 
 @UseInterceptors(ClassSerializerInterceptor)

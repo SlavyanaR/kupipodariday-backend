@@ -7,20 +7,20 @@ import { HashService } from '../hash/hash.service';
 @Injectable()
 export class AuthService {
   constructor(
-    private jwtService: JwtService,
-    private userService: UsersService,
-    private hashService: HashService,
+    private readonly jwtService: JwtService,
+    private readonly userService: UsersService,
+    private readonly hashService: HashService,
   ) {}
 
   auth(user: User) {
     const payload = { sub: user.id };
 
     return {
-      access_token: this.jwtService.sign(payload, { expiresIn: '24h' }),
+      access_token: this.jwtService.sign(payload),
     };
   }
 
-  async validateUser(username: string, pass: string) {
+  async validateUser(username: string, pass: string): Promise<User | null> {
     const user = await this.userService.findOne(username);
 
     if (user && user.password) {

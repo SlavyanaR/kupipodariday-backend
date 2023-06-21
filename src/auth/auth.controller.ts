@@ -16,7 +16,7 @@ import { GROUP_USER } from '../utils/constants';
 @Controller('auth')
 export class AuthController {
   constructor(
-    private readonly authService: AuthService,
+    private authService: AuthService,
     private userService: UsersService,
   ) {}
 
@@ -26,8 +26,8 @@ export class AuthController {
     return this.authService.auth(req.user);
   }
 
-  @Post('signup')
   @SerializeOptions({ groups: [GROUP_USER] })
+  @Post('signup')
   async signup(@Body() createUserDto: CreateUserDto) {
     const { about, ...rest } = createUserDto;
     const dto = (about === '' ? rest : createUserDto) as CreateUserDto;

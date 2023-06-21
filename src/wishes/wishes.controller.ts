@@ -1,25 +1,16 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, } from '@nestjs/common';
 import { WishesService } from './wishes.service';
 import { CreateWishDto } from './dto/create-wish.dto';
 import { UpdateWishDto } from './dto/update-wish.dto';
-import { JwtGuard } from 'src/auth/jwt.guard';
-import { AuthUser } from 'src/utils/auth-user.decorator';
-import { User } from 'src/users/entities/user.entity';
+import { JwtGuard } from '../auth/jwt.guard';
+import { AuthUser } from '../utils/auth-user.decorator';
+import { User } from '../users/entities/user.entity';
 import { Wish } from './entities/wish.entity';
 import { DeleteResult, UpdateResult } from 'typeorm';
 
 @Controller('wishes')
 export class WishesController {
-  constructor(private readonly wishesService: WishesService) {}
+  constructor(private readonly wishesService: WishesService) { }
 
   @UseGuards(JwtGuard)
   @Post()
@@ -27,7 +18,7 @@ export class WishesController {
     @Body() createWishDto: CreateWishDto,
     @AuthUser() user: User,
   ): Promise<Wish> {
-    return this.wishesService.create(createWishDto, user.id);
+    return this.wishesService.create(createWishDto, user);
   }
 
   @Get('last')
