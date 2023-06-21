@@ -13,7 +13,7 @@ import { RequestWithUser } from '../utils/request-with-user';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { GROUP_USER } from '../utils/constants';
 
-@Controller('auth')
+@Controller()
 export class AuthController {
   constructor(
     private authService: AuthService,
