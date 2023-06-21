@@ -14,8 +14,6 @@ import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtGuard } from '../auth/jwt.guard';
 import { GROUP_USER } from '../utils/constants';
-//import { RequestWithUser } from 'src/utils/request-with-user';
-//import { FindUserDto } from './dto/find-user.dto';
 import { AuthUser } from '../utils/auth-user.decorator';
 import { User } from './entities/user.entity';
 import { UserProfileResponseDto } from './dto/user-profile-response.dto';

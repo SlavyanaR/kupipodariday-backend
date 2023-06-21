@@ -1,6 +1,5 @@
 import { User } from '../../users/entities/user.entity';
 import { Base } from '../../utils/base-entity';
-//import { ColumnTransformer } from '../../utils/column-transformer';
 import { Wish } from '../../wishes/entities/wish.entity';
 import { Column, Entity, ManyToOne } from 'typeorm';
 import { IsBoolean, IsPositive } from 'class-validator';

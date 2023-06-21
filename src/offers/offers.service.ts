@@ -8,7 +8,6 @@ import { DataSource, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Offer } from './entities/offer.entity';
 import { WishesService } from '../wishes/wishes.service';
-//import { Wish } from 'src/wishes/entities/wish.entity';
 import { User } from '../users/entities/user.entity';
 import queryRunner from '../utils/queryRunner';
 

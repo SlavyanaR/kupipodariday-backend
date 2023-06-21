@@ -2,7 +2,6 @@ import { Controller, Get, Post, Body, Param, UseGuards } from '@nestjs/common';
 import { OffersService } from './offers.service';
 import { CreateOfferDto } from './dto/create-offer.dto';
 import { JwtGuard } from '../auth/jwt.guard';
-//import { RequestWithUser } from 'src/utils/request-with-user';
 import { User } from '../users/entities/user.entity';
 import { AuthUser } from '../utils/auth-user.decorator';
 import { Offer } from './entities/offer.entity';

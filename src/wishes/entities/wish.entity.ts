@@ -2,7 +2,6 @@ import { IsNumber, IsPositive, IsUrl, Length } from 'class-validator';
 import { Column, Entity, OneToMany, ManyToOne, ManyToMany } from 'typeorm';
 
 import { Base } from '../../utils/base-entity';
-//import { ColumnTransformer } from 'src/utils/column-transformer';
 import { User } from '../../users/entities/user.entity';
 import { Offer } from '../../offers/entities/offer.entity';
 import { Wishlist } from '../../wishlistlists/entities/wishlist.entity';

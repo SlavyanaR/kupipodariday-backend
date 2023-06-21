@@ -1,6 +1,3 @@
-//import * as path from 'path';
-//import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
-
 export default () => ({
   server: {
     port: (process.env.PORT) || 3001,

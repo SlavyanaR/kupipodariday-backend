@@ -1,5 +1,4 @@
 import { IsOptional, IsUrl, Length, MaxLength } from 'class-validator';
-//import { ProfileResponseUserDto } from '../users/dto/profile-response-user.dto';
 import { User } from '../../users/entities/user.entity';
 import { Base } from '../../utils/base-entity';
 import { Wish } from '../../wishes/entities/wish.entity';
