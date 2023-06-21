@@ -1,9 +1,7 @@
 import { IsOptional, IsUrl, Length, MaxLength } from 'class-validator';
-import { ProfileResponseUserDto } from 'src/users/dto/profile-response-user.dto';
-import { User } from 'src/users/entities/user.entity';
-import { Base } from 'src/utils/base-entity';
-import { PartialWishDto } from 'src/wishes/dto/partial-wish.dto';
-import { Wish } from 'src/wishes/entities/wish.entity';
+import { User } from '../../users/entities/user.entity';
+import { Base } from '../../utils/base-entity';
+import { Wish } from '../../wishes/entities/wish.entity';
 import { Column, Entity, JoinTable, ManyToMany, ManyToOne } from 'typeorm';
 
 @Entity()
@@ -22,9 +20,9 @@ export class Wishlist extends Base {
   image: string;
 
   @ManyToOne(() => User, (user) => user.wishlists)
-  owner: ProfileResponseUserDto;
+  owner: User;
 
-  @ManyToMany(() => Wish)
+  @ManyToMany(() => Wish, (wish) => wish.wishlist)
   @JoinTable()
-  items: PartialWishDto[];
+  items: Wish[];
 }

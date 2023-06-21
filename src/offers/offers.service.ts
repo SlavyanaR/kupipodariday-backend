@@ -1,87 +1,76 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
-import { CreateOfferDto } from './dto/create-offer.dto';
 import {
-  DataSource,
-  FindManyOptions,
-  FindOneOptions,
-  Repository,
-} from 'typeorm';
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { CreateOfferDto } from './dto/create-offer.dto';
+import { DataSource, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Offer } from './entities/offer.entity';
-import { WishesService } from 'src/wishes/wishes.service';
-import { Wish } from 'src/wishes/entities/wish.entity';
+import { WishesService } from '../wishes/wishes.service';
+import { User } from '../users/entities/user.entity';
+import queryRunner from '../utils/queryRunner';
 
 @Injectable()
 export class OffersService {
   constructor(
-    private dataSource: DataSource,
     @InjectRepository(Offer)
-    private offerRepository: Repository<Offer>,
-    private wishesService: WishesService,
+    private readonly offerRepository: Repository<Offer>,
+    private readonly wishesService: WishesService,
+    private readonly dataSource: DataSource,
   ) {}
 
-  async create(createOfferDto: CreateOfferDto, userId: number) {
-    const { amount, itemId } = createOfferDto;
-    const wish = await this.wishesService.findOne({
-      where: { id: itemId },
-      relations: ['owner'],
-    });
-    const { price, raised, owner } = wish;
+  async create(createOfferDto: CreateOfferDto, user: User): Promise<Offer> {
+    const { amount, hidden, itemId } = createOfferDto;
 
-    if (owner.id === userId) {
+    const item = await this.wishesService.findOne(itemId);
+
+    if (item.owner.id === user.id) {
       throw new ForbiddenException(
         'Вы не можете вносить деньги на собственные подарки',
       );
     }
+    const raised = item.raised + amount;
 
-    if (amount + raised > price) {
+    if (raised > item.price) {
       throw new ForbiddenException(
         `Сумма взноса превышает сумму остатка стоимости подарка: ${
-          price - raised
+          item.price - raised
         } руб.`,
       );
     }
 
-    const offer = this.offerRepository.create({
-      ...createOfferDto,
-      user: { id: userId },
-      item: { id: itemId },
+    const offer = await this.offerRepository.create({
+      amount,
+      hidden,
+      user,
+      item,
     });
 
-    await this.dataSource.transaction(async (transactionalEntityManager) => {
-      await transactionalEntityManager.insert<Offer>(Offer, offer);
-      await transactionalEntityManager.update<Wish>(Wish, itemId, {
-        raised: raised + amount,
-      });
-    });
+    await queryRunner(this.dataSource, [
+      this.wishesService.updateRaised(itemId, raised),
+      this.offerRepository.save(offer),
+    ]);
 
-    return {};
+    return offer;
   }
 
-  findMany(query: FindManyOptions<Offer>) {
-    return this.offerRepository.find(query);
-  }
-
-  findOne(query: FindOneOptions<Offer>) {
-    return this.offerRepository.findOne(query);
-  }
-
-  getOffers() {
-    return this.findMany({
-      relations: {
-        item: { owner: true },
-        user: { wishes: true, offers: true },
-      },
+  async getOffers(): Promise<Offer[]> {
+    return this.offerRepository.find({
+      relations: { user: true, item: true },
     });
   }
 
-  getById(id: number) {
-    return this.findOne({
+  async getById(id: number): Promise<Offer> {
+    const offer = await this.offerRepository.findOne({
       where: { id },
-      relations: {
-        item: { owner: true },
-        user: { wishes: true, offers: true },
-      },
+      relations: { user: true, item: true },
     });
+
+    if (!offer) {
+      throw new NotFoundException('Заявка не найдена');
+    }
+
+    return offer;
   }
 }
