@@ -8,7 +8,7 @@ import { UsersService } from '../users/users.service';
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
     private configService: ConfigService,
-    private userService: UsersService,
+    private usersService: UsersService,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -17,12 +17,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(jwtPayload: { sub: number }) {
-    const user = await this.userService.updateOne(jwtPayload.sub);
+    const user = await this.usersService.findById(jwtPayload.sub);
 
     if (!user) {
-      throw new UnauthorizedException(
-        'Пользователь не найден или неверный пароль',
-      );
+      throw new UnauthorizedException('Пользователь не найден или неверный пароль');
     }
 
     return user;

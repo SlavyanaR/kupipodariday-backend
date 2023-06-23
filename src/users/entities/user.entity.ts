@@ -1,5 +1,5 @@
 import { Exclude, Expose } from 'class-transformer';
-import { IsEmail, IsOptional, IsString, IsUrl, Length } from 'class-validator';
+import { IsEmail, IsOptional, IsString, IsUrl, Length, MaxLength } from 'class-validator';
 import { Offer } from '../../offers/entities/offer.entity';
 import { Base } from '../../utils/base-entity';
 import { Wish } from '../../wishes/entities/wish.entity';
@@ -41,6 +41,6 @@ export class User extends Base {
   @OneToMany(() => Offer, (offer) => offer.user)
   offers: Offer[];
 
-  @OneToMany(() => Wishlist, (list) => list.owner)
+  @OneToMany(() => Wishlist, (wishlist) => wishlist.owner)
   wishlists: Wishlist[];
 }

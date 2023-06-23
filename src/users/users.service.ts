@@ -15,14 +15,16 @@ import { Wish } from '../wishes/entities/wish.entity';
 export class UsersService {
   constructor(
     @InjectRepository(User)
-    private userRepository: Repository<User>,
+    private readonly userRepository: Repository<User>,
     @InjectRepository(Wish)
     private readonly wishRepository: Repository<Wish>,
-    private hashService: HashService,
+    private readonly hashService: HashService,
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
-    const password = await this.hashService.generate(createUserDto.password);
+    const password = await this.hashService.generate(
+      createUserDto.password,
+    );
 
     const newUser = await this.userRepository.create({
       ...createUserDto,
@@ -30,29 +32,40 @@ export class UsersService {
     });
 
     return this.userRepository.save(newUser).catch((e) => {
-      if (e.code == '23505') {
-        throw new BadRequestException(
-          'Пользователь с таким email или username уже зарегистрирован',
-        );
+      if (e.code ==  '23505') {
+        throw new BadRequestException( 'Пользователь с таким email или username уже зарегистрирован');
       }
 
       return e;
     });
   }
-  async findOne(username: string): Promise<User> {
-    const user = await this.userRepository.findOneBy({ username });
+
+  async findById(id: number): Promise<User> {
+    const user = await this.userRepository.findOneBy({ id });
+
     if (!user) {
       throw new NotFoundException('Пользователь не найден');
     }
+
     return user;
   }
 
-  async updateOne(id: number): Promise<User> {
-    const user = await this.userRepository.findOneBy({ id });
+  async findOne(username: string): Promise<User> {
+    const user = await this.userRepository.findOneBy({ username });
+
     if (!user) {
       throw new NotFoundException('Пользователь не найден');
     }
+
     return user;
+  }
+
+  async findMany(query: string): Promise<User[]> {
+    const likeQuery = Like(`%${query}%`);
+
+    return this.userRepository.find({
+      where: [{ username: likeQuery }, { email: likeQuery }],
+    });
   }
 
   async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
@@ -64,9 +77,7 @@ export class UsersService {
 
     await this.userRepository.update({ id }, updateUserDto).catch((e) => {
       if (e.code == '23505') {
-        throw new BadRequestException(
-          'Пользователь с таким email или username уже зарегистрирован',
-        );
+        throw new BadRequestException(  'Пользователь с таким email или username уже зарегистрирован');
       }
 
       return e;
@@ -75,21 +86,13 @@ export class UsersService {
     return this.userRepository.findOneBy({ id });
   }
 
-  async getUserWishes(id: number): Promise<Wish[]> {
+  async findUserWishes(id: number): Promise<Wish[]> {
     return this.wishRepository.find({
       where: { owner: { id } },
       relations: {
         owner: true,
         offers: true,
       },
-    });
-  }
-
-  async findMany(query: string): Promise<User[]> {
-    const likeQuery = Like(`%${query}%`);
-
-    return this.userRepository.find({
-      where: [{ username: likeQuery }, { email: likeQuery }],
     });
   }
 }

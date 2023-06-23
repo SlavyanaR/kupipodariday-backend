@@ -19,7 +19,7 @@ import { DeleteResult, UpdateResult } from 'typeorm';
 
 @UseGuards(JwtGuard)
 @Controller('wishlistlists')
-export class WishlistlistsController {
+export class WishlistsController {
   constructor(private readonly wishlistsService: WishlistsService) {}
 
   @Post()
@@ -54,6 +54,6 @@ export class WishlistlistsController {
     @Param('id') id: number,
     @AuthUser() user: User,
   ): Promise<DeleteResult> {
-    return this.wishlistsService.delete(id, user.id);
+    return this.wishlistsService.remove(id, user.id);
   }
 }

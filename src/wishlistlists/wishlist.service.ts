@@ -15,7 +15,7 @@ import { WishesService } from '../wishes/wishes.service';
 export class WishlistsService {
   constructor(
     @InjectRepository(Wishlist)
-    private readonly wishlistsRepository: Repository<Wishlist>,
+    private readonly wishlistRepository: Repository<Wishlist>,
     private readonly wishesService: WishesService,
   ) {}
 
@@ -29,17 +29,17 @@ export class WishlistsService {
       throw new NotFoundException('Ни одного подарка не найдено');
     }
 
-    const newWishlist = await this.wishlistsRepository.create({
+    const newWishlist = await this.wishlistRepository.create({
       ...createWishlistDto,
       items,
       owner,
     });
 
-    return this.wishlistsRepository.save(newWishlist);
+    return this.wishlistRepository.save(newWishlist);
   }
 
   async getWishlists(): Promise<Wishlist[]> {
-    return this.wishlistsRepository.find({
+    return this.wishlistRepository.find({
       relations: {
         owner: true,
         items: true,
@@ -48,7 +48,7 @@ export class WishlistsService {
   }
 
   async getById(id: number): Promise<Wishlist> {
-    const wishlist = await this.wishlistsRepository.findOne({
+    const wishlist = await this.wishlistRepository.findOne({
       where: {
         id,
       },
@@ -69,25 +69,22 @@ export class WishlistsService {
     updateWishlistDto: UpdateWishlistDto,
     userId: number,
   ): Promise<UpdateResult> {
-    const wishlist = await this.getById(id);
+    const wish = await this.getById(id);
 
-    if (wishlist.owner.id !== userId) {
-      throw new ForbiddenException(
-        'Вы не можете редактировать чужие списки подарков',
-      );
+    if (wish.owner.id !== userId) {
+      throw new ForbiddenException('Нельзя редактировать или удалять чужие коллекции');
     }
-    return this.wishlistsRepository.update(id, updateWishlistDto);
+
+    return this.wishlistRepository.update(id, updateWishlistDto);
   }
 
-  async delete(id: number, userId: number): Promise<DeleteResult> {
-    const wishlist = await this.getById(id);
+  async remove(id: number, userId: number): Promise<DeleteResult> {
+    const wish = await this.getById(id);
 
-    if (wishlist.owner.id !== userId) {
-      throw new ForbiddenException(
-        'Вы не можете удалять чужие списки подарков',
-      );
+    if (wish.owner.id !== userId) {
+      throw new ForbiddenException('Нельзя редактировать или удалять чужие коллекции');
     }
 
-    return this.wishlistsRepository.delete(id);
+    return this.wishlistRepository.delete(id);
   }
 }

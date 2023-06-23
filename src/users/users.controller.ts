@@ -29,7 +29,7 @@ export class UsersController {
   @Get('me')
   @SerializeOptions({ groups: [GROUP_USER] })
   async getUser(@AuthUser() user: User): Promise<UserProfileResponseDto> {
-    return this.usersService.updateOne(user.id);
+    return this.usersService.findById(user.id);
   }
 
   @Patch('me')
@@ -43,7 +43,7 @@ export class UsersController {
 
   @Get('me/wishes')
   async getMyWishes(@AuthUser() user: User): Promise<Wish[]> {
-    return this.usersService.getUserWishes(user.id);
+    return this.usersService.findUserWishes(user.id);
   }
 
   @Get(':username')
@@ -57,7 +57,7 @@ export class UsersController {
   async getUserWishes(@Param('username') username: string): Promise<Wish[]> {
     const user = await this.usersService.findOne(username);
 
-    return this.usersService.getUserWishes(user.id);
+    return this.usersService.findUserWishes(user.id);
   }
 
   @Post('find')

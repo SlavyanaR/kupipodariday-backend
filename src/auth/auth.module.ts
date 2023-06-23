@@ -11,8 +11,8 @@ import { JwtConfigService } from 'src/configuration/jwt-config.factory';
 
 @Module({
   imports: [
-    PassportModule,
     UsersModule,
+    PassportModule,
     HashModule,
     JwtModule.registerAsync({
       useClass: JwtConfigService,

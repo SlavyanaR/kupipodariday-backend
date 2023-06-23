@@ -33,23 +33,23 @@ export class WishesController {
 
   @UseGuards(JwtGuard)
   @Get(':id')
-  getById(@Param('id') id: number): Promise<Wish> {
+  async getWish(@Param('id') id: number): Promise<Wish> {
     return this.wishesService.findOne(id);
   }
 
   @UseGuards(JwtGuard)
   @Patch(':id')
-  async update(
+  async updateWish(
     @Param('id') id: number,
-    @AuthUser() user: User,
     @Body() updateWishDto: UpdateWishDto,
+    @AuthUser() user: User,
   ): Promise<UpdateResult> {
-    return this.wishesService.update(id, user.id, updateWishDto);
+    return this.wishesService.update(id, updateWishDto, user.id);
   }
 
   @UseGuards(JwtGuard)
   @Delete(':id')
-  async remove(
+  async deleteWish(
     @Param('id') id: number,
     @AuthUser() user: User,
   ): Promise<DeleteResult> {
@@ -58,7 +58,7 @@ export class WishesController {
 
   @UseGuards(JwtGuard)
   @Post(':id/copy')
-  async copy(@Param('id') id: number, @AuthUser() user: User): Promise<Wish> {
+  async copyWish(@Param('id') id: number, @AuthUser() user: User,): Promise<Wish> {
     return this.wishesService.copy(id, user);
   }
 }

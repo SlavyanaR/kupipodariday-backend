@@ -8,6 +8,7 @@ import { Wishlist } from '../../wishlistlists/entities/wishlist.entity';
 
 @Entity()
 export class Wish extends Base {
+
   @Column()
   @Length(1, 200)
   name: string;

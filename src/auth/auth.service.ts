@@ -8,23 +8,24 @@ import { HashService } from '../hash/hash.service';
 export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly userService: UsersService,
+    private readonly usersService: UsersService,
     private readonly hashService: HashService,
   ) {}
 
   auth(user: User) {
     const payload = { sub: user.id };
 
-    return {
-      access_token: this.jwtService.sign(payload),
-    };
+    return { access_token: this.jwtService.sign(payload) };
   }
 
-  async validateUser(username: string, pass: string): Promise<User | null> {
-    const user = await this.userService.findOne(username);
+  async validateUser(
+    username: string,
+    password: string,
+  ): Promise<User | null> {
+    const user = await this.usersService.findOne(username);
 
     if (user && user.password) {
-      const isVerified = await this.hashService.verify(pass, user.password);
+      const isVerified = await this.hashService.verify(password, user.password);
 
       return isVerified ? user : null;
     }

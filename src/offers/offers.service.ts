@@ -26,21 +26,16 @@ export class OffersService {
     const item = await this.wishesService.findOne(itemId);
 
     if (item.owner.id === user.id) {
-      throw new ForbiddenException(
-        'Вы не можете вносить деньги на собственные подарки',
-      );
+      throw new ForbiddenException( 'Вы не можете вносить деньги на собственные подарки');
     }
+
     const raised = item.raised + amount;
 
     if (raised > item.price) {
-      throw new ForbiddenException(
-        `Сумма взноса превышает сумму остатка стоимости подарка: ${
-          item.price - raised
-        } руб.`,
-      );
+      throw new ForbiddenException(`Сумма взноса превышает сумму остатка стоимости подарка`);
     }
 
-    const offer = await this.offerRepository.create({
+    const offer  = await this.offerRepository.create({
       amount,
       hidden,
       user,
@@ -49,16 +44,14 @@ export class OffersService {
 
     await queryRunner(this.dataSource, [
       this.wishesService.updateRaised(itemId, raised),
-      this.offerRepository.save(offer),
+      this.offerRepository.save(offer ),
     ]);
 
     return offer;
   }
 
   async getOffers(): Promise<Offer[]> {
-    return this.offerRepository.find({
-      relations: { user: true, item: true },
-    });
+    return this.offerRepository.find({ relations: { user: true, item: true } });
   }
 
   async getById(id: number): Promise<Offer> {

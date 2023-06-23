@@ -11,27 +11,27 @@ import queryRunner from '../utils/queryRunner';
 export class WishesService {
   constructor(
     @InjectRepository(Wish)
-    private readonly wishesRepository: Repository<Wish>,
+    private readonly wishRepository: Repository<Wish>,
     private readonly dataSource: DataSource,
-  ) { }
+  ) {}
 
   async create(createWishDto: CreateWishDto, user: User): Promise<Wish> {
     await this.checkDuplicate(createWishDto, user);
 
-    const newWish = await this.wishesRepository.create({
+    const newWish = await this.wishRepository.create({
       ...createWishDto,
       owner: user,
     });
 
-    return this.wishesRepository.save(newWish);
+    return this.wishRepository.save(newWish);
   }
 
   async findMany(wishesIds: number[]): Promise<Wish[]> {
-    return this.wishesRepository.find({ where: { id: In(wishesIds) } });
+    return this.wishRepository.find({ where: { id: In(wishesIds) } });
   }
 
   async findOne(id: number): Promise<Wish> {
-    const wish = await this.wishesRepository.findOne({
+    const wish = await this.wishRepository.findOne({
       where: { id },
       relations: {
         owner: true,
@@ -42,80 +42,49 @@ export class WishesService {
     if (!wish) {
       throw new NotFoundException('Подарок не найден');
     }
+
     return wish;
   }
-
   async getLastWishes(): Promise<Wish[]> {
-    return this.wishesRepository.find({
-      order: { createdAt: 'DESC' },
+    return this.wishRepository.find({
+      order: {
+        createdAt: 'DESC',
+      },
       take: 40,
     });
   }
 
   async getTopWishes(): Promise<Wish[]> {
-    return this.wishesRepository.find({
-      order: { copied: 'DESC' },
+    return this.wishRepository.find({
+      order: {
+        copied: 'DESC',
+      },
       take: 10,
     });
   }
 
-  async update(id: number, userId: number, updateWishDto: UpdateWishDto,): Promise<UpdateResult> {
+  async update(
+    id: number,
+    updateWishDto: UpdateWishDto,
+    userId: number,
+  ): Promise<UpdateResult> {
     const wish = await this.findOne(id);
+
     if (userId !== wish.owner.id) {
-      throw new ForbiddenException('Вы не можете редактировать чужие подарки');
-    }
-    if (updateWishDto.price && wish.raised > 0) {
-      throw new ForbiddenException(
-        'Вы не можете изменять стоимость подарка, если уже есть желающие скинуться',
-      );
-    }
-    return this.wishesRepository.update({ id }, updateWishDto);
-  }
-
-  async updateRaised(id: number, raised: number): Promise<UpdateResult> {
-    return this.wishesRepository.update({ id }, { raised });
-  }
-
-  async remove(id: number, userId: number): Promise<DeleteResult> {
-    const wish = await this.findOne(id);
-    if (userId !== wish.owner.id) {
-      throw new ForbiddenException('Вы не можете удалять чужие подарки');
-    }
-    return this.wishesRepository.delete(id);
-  }
-
-  async copy(id: number, user: User): Promise<Wish> {
-    const wish = await this.wishesRepository.findOneBy({ id });
-
-    if (!wish) {
-      throw new NotFoundException('Подарок не найден');
+      throw new ForbiddenException('Нельзя редактировать или удалять чужие подарки');
     }
 
-    await this.checkDuplicate(wish, user);
+    if (wish.raised && updateWishDto.price > 0) {
+      throw new ForbiddenException('В вашем вишлисте уже есть этот подарок');
+    }
 
-    const { name, link, image, price, description } = wish;
-
-    const copiedWish = await this.wishesRepository.create({
-      name,
-      link,
-      image,
-      price,
-      description,
-      owner: user,
-    });
-
-    await queryRunner(this.dataSource, [
-      this.wishesRepository.update({ id: wish.id }, { copied: ++wish.copied }),
-      this.wishesRepository.save(copiedWish),
-    ]);
-
-    return copiedWish;
+    return this.wishRepository.update({ id }, updateWishDto);
   }
 
   async checkDuplicate(createWishDto: CreateWishDto, user: User) {
     const { name, link, price } = createWishDto;
 
-    const wish = await this.wishesRepository.findOne({
+    const wish = await this.wishRepository.findOne({
       where: {
         name,
         link,
@@ -130,5 +99,47 @@ export class WishesService {
     }
 
     return;
+  }
+
+  async updateRaised(id: number, raised: number): Promise<UpdateResult> {
+    return this.wishRepository.update({ id }, { raised });
+  }
+
+  async remove(id: number, userId: number): Promise<DeleteResult> {
+    const wish = await this.findOne(id);
+
+    if (userId !== wish.owner.id) {
+      throw new ForbiddenException('Нельзя редактировать или удалять чужие подарки');
+    }
+
+    return this.wishRepository.delete(id);
+  }
+
+  async copy(id: number, user: User): Promise<Wish> {
+    const wish = await this.wishRepository.findOneBy({ id });
+
+    if (!wish) {
+      throw new NotFoundException('Подарок не найден');
+    }
+
+    await this.checkDuplicate(wish, user);
+
+    const { name, link, image, price, description } = wish;
+
+    const copiedWish = await this.wishRepository.create({
+      name,
+      link,
+      image,
+      price,
+      description,
+      owner: user,
+    });
+
+    await queryRunner(this.dataSource, [
+      this.wishRepository.update({ id: wish.id }, { copied: ++wish.copied }),
+      this.wishRepository.save(copiedWish),
+    ]);
+
+    return copiedWish;
   }
 }

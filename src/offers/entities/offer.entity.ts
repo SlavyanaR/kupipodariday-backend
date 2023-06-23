@@ -7,7 +7,7 @@ import { IsBoolean, IsPositive } from 'class-validator';
 @Entity()
 export class Offer extends Base {
   @ManyToOne(() => Wish, (wish) => wish.offers)
-  item: Wish;
+  item: Wish; 
 
   @Column('decimal', { precision: 10, scale: 2 })
   @IsPositive()

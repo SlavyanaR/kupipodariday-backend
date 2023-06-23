@@ -20,12 +20,12 @@ export class OffersController {
   }
 
   @Get()
-  getOffers(): Promise<Offer[]> {
+  findAll(): Promise<Offer[]> {
     return this.offersService.getOffers();
   }
 
   @Get(':id')
-  getById(@Param('id') id: number): Promise<Offer> {
+  findOne(@Param('id') id: number): Promise<Offer> {
     return this.offersService.getById(id);
   }
 }
